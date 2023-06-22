@@ -4,7 +4,6 @@ import { MiddlewareError } from './middleware';
 import cors from 'cors';
 import path from 'path';
 
-
 import * as env from 'dotenv';
 env.config({ path: __dirname + "/../.env" });
 
