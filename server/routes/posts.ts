@@ -4,25 +4,32 @@ import prisma from '../prisma';
 import { Post } from '../types';
 
 posts.post('/publish', async (req: Request, res: Response, next: NextFunction) => {
-    const { title, author, content  } = req.body as unknown as { title: string, content: Post["content"], author: string };
+    const { title, author, content, image, description  } = req.body as unknown as { title: string, author: string, content: Post["content"], image: string, description: string };
+
+    if (!title || !author || !content || !description || !image) res.status(400).send({ error: "Missing some fields" })
 
     try {
+        if (content.length < 0) res.status(400).send({ error: "No content?" })
+
         const post = await prisma.post.create({
             data: {
                 title: title,
-                content: JSON.stringify(content),
-                author: author
+                content: content,
+                author: author,
+                image: image,
+                description: description
             }
         })
     
         res.send({ ok: true, id: post.id })
-    } catch (err) {
-        next({ message: "Unknown error occured" })
+    } catch (err: any) {
+        // throw new Error(err)
+        next({ message: err.message })
     }
 })
 
-posts.post('/delete', async (req: Request, res: Response, next: NextFunction) => {
-    const { id } = req.body as unknown as { id: string };
+posts.get('/delete', async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.query as unknown as { id: string };
 
     if (!id) res.status(400).send({ error: "No id" })
 
@@ -63,7 +70,7 @@ posts.get("/get", async (req: Request, res: Response, next: NextFunction) => {
     if (last) {
         try {
             const posts = await prisma.post.findMany({
-                take: parseInt(last),
+                take: (parseInt(last) === -1) ? -1 : parseInt(last),
                 orderBy: {
                     createdAt: "desc"
                 }
@@ -76,6 +83,27 @@ posts.get("/get", async (req: Request, res: Response, next: NextFunction) => {
     }
 })
 
+posts.get("/view", async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.query as unknown as { id: string };
 
+    if (!id) res.status(400).send({ error: "No id" })
+
+    try {
+        const post = await prisma.post.update({
+            where: {
+                id: parseInt(id)
+            },
+            data: {
+                views: {
+                    increment: 1
+                }
+            }
+        })
+
+        res.send({ ok: true, views: post.views })
+    } catch (err) {
+        next({ message: "Unknown error occured" })
+    }
+})
 
 module.exports = posts;

@@ -1,24 +1,40 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { RouterProvider, createBrowserRouter } from 'react-router-dom';
+import { About, Article, Galery, Home, Softmar } from './pages';
+import Layout from './components/Layout';
+import path from 'path';
 
-function App() {
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Layout><Home /></Layout>
+  },
+  {
+    path: "about",
+    element: <Layout><About /></Layout>
+  },
+  {
+    path: "galery",
+    element: <Layout><Galery /></Layout>
+  },
+  {
+    path: "softmar",
+    element: <Layout><Softmar /></Layout>
+  },
+  {
+    path: "*",
+    element: <Layout><Home /></Layout>
+  },
+  {
+    path: "article",
+    element: <Layout><Article /></Layout>
+  },
+]);
+
+function App() { 
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="App scroll-smooth">
+        <RouterProvider router={router} />
     </div>
   );
 }
